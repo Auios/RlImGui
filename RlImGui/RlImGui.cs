@@ -1,4 +1,4 @@
-﻿namespace RlImGui;
+﻿namespace Auios.RlImGui;
 
 using System.Numerics;
 using ImGuiNET;
