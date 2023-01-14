@@ -1,4 +1,4 @@
-﻿namespace Auios.RlImGui;
+namespace Auios.ImGui;
 
 using System.Numerics;
 using ImGuiNET;
@@ -8,16 +8,16 @@ public static class RlImGui
 {
     internal static IntPtr ImGuiContext = IntPtr.Zero;
 
-    static ImGuiMouseCursor CurrentMouseCursor = ImGuiMouseCursor.COUNT;
-    static Dictionary<ImGuiMouseCursor, MouseCursor> MouseCursorMap;
+    private static ImGuiMouseCursor currentMouseCursor = ImGuiMouseCursor.COUNT;
+    private static Dictionary<ImGuiMouseCursor, MouseCursor> _mouseCursorMap;
 
-    static Texture FontTexture;
+    private static Texture fontTexture;
 
     public static void Setup(bool darkTheme = true)
     {
-        MouseCursorMap = new Dictionary<ImGuiMouseCursor, MouseCursor>();
+        _mouseCursorMap = new Dictionary<ImGuiMouseCursor, MouseCursor>();
 
-        FontTexture.id = 0;
+        fontTexture.id = 0;
 
         BeginInitImGui();
 
@@ -34,18 +34,18 @@ public static class RlImGui
         ImGuiContext = ImGui.CreateContext();
     }
 
-    static void SetupMouseCursors()
+    private static void SetupMouseCursors()
     {
-        MouseCursorMap.Clear();
-        MouseCursorMap[ImGuiMouseCursor.Arrow] = MouseCursor.MOUSE_CURSOR_ARROW;
-        MouseCursorMap[ImGuiMouseCursor.TextInput] = MouseCursor.MOUSE_CURSOR_IBEAM;
-        MouseCursorMap[ImGuiMouseCursor.Hand] = MouseCursor.MOUSE_CURSOR_POINTING_HAND;
-        MouseCursorMap[ImGuiMouseCursor.ResizeAll] = MouseCursor.MOUSE_CURSOR_RESIZE_ALL;
-        MouseCursorMap[ImGuiMouseCursor.ResizeEW] = MouseCursor.MOUSE_CURSOR_RESIZE_EW;
-        MouseCursorMap[ImGuiMouseCursor.ResizeNESW] = MouseCursor.MOUSE_CURSOR_RESIZE_NESW;
-        MouseCursorMap[ImGuiMouseCursor.ResizeNS] = MouseCursor.MOUSE_CURSOR_RESIZE_NS;
-        MouseCursorMap[ImGuiMouseCursor.ResizeNWSE] = MouseCursor.MOUSE_CURSOR_RESIZE_NWSE;
-        MouseCursorMap[ImGuiMouseCursor.NotAllowed] = MouseCursor.MOUSE_CURSOR_NOT_ALLOWED;
+        _mouseCursorMap.Clear();
+        _mouseCursorMap[ImGuiMouseCursor.Arrow] = MouseCursor.MOUSE_CURSOR_ARROW;
+        _mouseCursorMap[ImGuiMouseCursor.TextInput] = MouseCursor.MOUSE_CURSOR_IBEAM;
+        _mouseCursorMap[ImGuiMouseCursor.Hand] = MouseCursor.MOUSE_CURSOR_POINTING_HAND;
+        _mouseCursorMap[ImGuiMouseCursor.ResizeAll] = MouseCursor.MOUSE_CURSOR_RESIZE_ALL;
+        _mouseCursorMap[ImGuiMouseCursor.ResizeEW] = MouseCursor.MOUSE_CURSOR_RESIZE_EW;
+        _mouseCursorMap[ImGuiMouseCursor.ResizeNESW] = MouseCursor.MOUSE_CURSOR_RESIZE_NESW;
+        _mouseCursorMap[ImGuiMouseCursor.ResizeNS] = MouseCursor.MOUSE_CURSOR_RESIZE_NS;
+        _mouseCursorMap[ImGuiMouseCursor.ResizeNWSE] = MouseCursor.MOUSE_CURSOR_RESIZE_NWSE;
+        _mouseCursorMap[ImGuiMouseCursor.NotAllowed] = MouseCursor.MOUSE_CURSOR_NOT_ALLOWED;
     }
 
     public static unsafe void ReloadFonts()
@@ -59,10 +59,10 @@ public static class RlImGui
 
         Image image = Raylib.GenImageColor(width, height, Raylib.BLANK);
 
-        FontTexture = Raylib.LoadTextureFromImage(image);
-        Raylib.UpdateTexture(FontTexture, (void*)pixels);
+        fontTexture = Raylib.LoadTextureFromImage(image);
+        Raylib.UpdateTexture(fontTexture, (void*)pixels);
 
-        io.Fonts.SetTexID(new IntPtr(FontTexture.id));
+        io.Fonts.SetTexID(new IntPtr(fontTexture.id));
     }
 
     public static void EndInitImGui()
@@ -70,7 +70,7 @@ public static class RlImGui
         SetupMouseCursors();
 
         ImGui.SetCurrentContext(ImGuiContext);
-        ImFontAtlasPtr fonts = ImGui.GetIO().Fonts;
+        // ImFontAtlasPtr fonts = ImGui.GetIO().Fonts;
         ImGui.GetIO().Fonts.AddFontDefault();
 
         ImGuiIOPtr io = ImGui.GetIO();
@@ -98,7 +98,7 @@ public static class RlImGui
         ReloadFonts();
     }
 
-    static void NewFrame()
+    private static void NewFrame()
     {
         ImGuiIOPtr io = ImGui.GetIO();
 
@@ -130,35 +130,27 @@ public static class RlImGui
             io.MouseWheel -= 1;
 
 
-        if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) == 0)
+        if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) != 0) return;
+        ImGuiMouseCursor imguiCursor = ImGui.GetMouseCursor();
+        if (imguiCursor == currentMouseCursor && !io.MouseDrawCursor) return;
+        currentMouseCursor = imguiCursor;
+        if (io.MouseDrawCursor || imguiCursor == ImGuiMouseCursor.None)
         {
-            ImGuiMouseCursor imgui_cursor = ImGui.GetMouseCursor();
-            if (imgui_cursor != CurrentMouseCursor || io.MouseDrawCursor)
-            {
-                CurrentMouseCursor = imgui_cursor;
-                if (io.MouseDrawCursor || imgui_cursor == ImGuiMouseCursor.None)
-                {
-                    Raylib.HideCursor();
-                }
-                else
-                {
-                    Raylib.ShowCursor();
+            Raylib.HideCursor();
+        }
+        else
+        {
+            Raylib.ShowCursor();
 
-                    if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) == 0)
-                    {
-
-                        if (!MouseCursorMap.ContainsKey(imgui_cursor))
-                            Raylib.SetMouseCursor(MouseCursor.MOUSE_CURSOR_DEFAULT);
-                        else
-                            Raylib.SetMouseCursor(MouseCursorMap[imgui_cursor]);
-                    }
-                }
-            }
+            if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) != 0) return;
+            Raylib.SetMouseCursor(!_mouseCursorMap.ContainsKey(imguiCursor)
+                ? MouseCursor.MOUSE_CURSOR_DEFAULT
+                : _mouseCursorMap[imguiCursor]);
         }
     }
 
 
-    static void FrameEvents()
+    private static void FrameEvents()
     {
         ImGuiIOPtr io = ImGui.GetIO();
 
@@ -184,24 +176,24 @@ public static class RlImGui
         ImGui.NewFrame();
     }
 
-    static void EnableScissor(float x, float y, float width, float height)
+    private static void EnableScissor(float x, float y, float width, float height)
     {
         
         RlGl.rlEnableScissorTest();
         RlGl.rlScissor((int)x, Raylib.GetScreenHeight() - (int)(y + height), (int)width, (int)height);
     }
 
-    static void TriangleVert(ImDrawVertPtr idx_vert)
+    private static void TriangleVert(ImDrawVertPtr idxVert)
     {
-        byte[] c = BitConverter.GetBytes(idx_vert.col);
+        byte[] c = BitConverter.GetBytes(idxVert.col);
 
         RlGl.rlColor4ub(c[0], c[1], c[2], c[3]);
 
-        RlGl.rlTexCoord2f(idx_vert.uv.X, idx_vert.uv.Y);
-        RlGl.rlVertex2f(idx_vert.pos.X, idx_vert.pos.Y);
+        RlGl.rlTexCoord2f(idxVert.uv.X, idxVert.uv.Y);
+        RlGl.rlVertex2f(idxVert.pos.X, idxVert.pos.Y);
     }
 
-    static void RenderTriangles(uint count, uint indexStart, ImVector<ushort> indexBuffer, ImPtrVector<ImDrawVertPtr> vertBuffer, IntPtr texturePtr)
+    private static void RenderTriangles(uint count, uint indexStart, ImVector<ushort> indexBuffer, ImPtrVector<ImDrawVertPtr> vertBuffer, IntPtr texturePtr)
     {
         uint textureId = 0;
         if (texturePtr != IntPtr.Zero)
@@ -233,7 +225,7 @@ public static class RlImGui
         RlGl.rlEnd();
     }
 
-    static void RenderData()
+    private static void RenderData()
     {
         RlGl.rlDrawRenderBatchActive();
         RlGl.rlDisableBackfaceCulling();
@@ -278,7 +270,7 @@ public static class RlImGui
 
     public static void Shutdown()
     {
-        Raylib.UnloadTexture(FontTexture);
+        Raylib.UnloadTexture(fontTexture);
     }
 
     public static void Image(Texture image)
