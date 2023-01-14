@@ -9,13 +9,13 @@ public static class RlImGui
     internal static IntPtr ImGuiContext = IntPtr.Zero;
 
     private static ImGuiMouseCursor currentMouseCursor = ImGuiMouseCursor.COUNT;
-    private static Dictionary<ImGuiMouseCursor, MouseCursor> _mouseCursorMap;
+    private static Dictionary<ImGuiMouseCursor, MouseCursor> mouseCursorMap;
 
     private static Texture fontTexture;
 
     public static void Setup(bool darkTheme = true)
     {
-        _mouseCursorMap = new Dictionary<ImGuiMouseCursor, MouseCursor>();
+        mouseCursorMap = new Dictionary<ImGuiMouseCursor, MouseCursor>();
 
         fontTexture.id = 0;
 
@@ -36,16 +36,16 @@ public static class RlImGui
 
     private static void SetupMouseCursors()
     {
-        _mouseCursorMap.Clear();
-        _mouseCursorMap[ImGuiMouseCursor.Arrow] = MouseCursor.MOUSE_CURSOR_ARROW;
-        _mouseCursorMap[ImGuiMouseCursor.TextInput] = MouseCursor.MOUSE_CURSOR_IBEAM;
-        _mouseCursorMap[ImGuiMouseCursor.Hand] = MouseCursor.MOUSE_CURSOR_POINTING_HAND;
-        _mouseCursorMap[ImGuiMouseCursor.ResizeAll] = MouseCursor.MOUSE_CURSOR_RESIZE_ALL;
-        _mouseCursorMap[ImGuiMouseCursor.ResizeEW] = MouseCursor.MOUSE_CURSOR_RESIZE_EW;
-        _mouseCursorMap[ImGuiMouseCursor.ResizeNESW] = MouseCursor.MOUSE_CURSOR_RESIZE_NESW;
-        _mouseCursorMap[ImGuiMouseCursor.ResizeNS] = MouseCursor.MOUSE_CURSOR_RESIZE_NS;
-        _mouseCursorMap[ImGuiMouseCursor.ResizeNWSE] = MouseCursor.MOUSE_CURSOR_RESIZE_NWSE;
-        _mouseCursorMap[ImGuiMouseCursor.NotAllowed] = MouseCursor.MOUSE_CURSOR_NOT_ALLOWED;
+        mouseCursorMap.Clear();
+        mouseCursorMap[ImGuiMouseCursor.Arrow] = MouseCursor.MOUSE_CURSOR_ARROW;
+        mouseCursorMap[ImGuiMouseCursor.TextInput] = MouseCursor.MOUSE_CURSOR_IBEAM;
+        mouseCursorMap[ImGuiMouseCursor.Hand] = MouseCursor.MOUSE_CURSOR_POINTING_HAND;
+        mouseCursorMap[ImGuiMouseCursor.ResizeAll] = MouseCursor.MOUSE_CURSOR_RESIZE_ALL;
+        mouseCursorMap[ImGuiMouseCursor.ResizeEW] = MouseCursor.MOUSE_CURSOR_RESIZE_EW;
+        mouseCursorMap[ImGuiMouseCursor.ResizeNESW] = MouseCursor.MOUSE_CURSOR_RESIZE_NESW;
+        mouseCursorMap[ImGuiMouseCursor.ResizeNS] = MouseCursor.MOUSE_CURSOR_RESIZE_NS;
+        mouseCursorMap[ImGuiMouseCursor.ResizeNWSE] = MouseCursor.MOUSE_CURSOR_RESIZE_NWSE;
+        mouseCursorMap[ImGuiMouseCursor.NotAllowed] = MouseCursor.MOUSE_CURSOR_NOT_ALLOWED;
     }
 
     public static unsafe void ReloadFonts()
@@ -143,9 +143,9 @@ public static class RlImGui
             Raylib.ShowCursor();
 
             if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) != 0) return;
-            Raylib.SetMouseCursor(!_mouseCursorMap.ContainsKey(imguiCursor)
+            Raylib.SetMouseCursor(!mouseCursorMap.ContainsKey(imguiCursor)
                 ? MouseCursor.MOUSE_CURSOR_DEFAULT
-                : _mouseCursorMap[imguiCursor]);
+                : mouseCursorMap[imguiCursor]);
         }
     }
 
