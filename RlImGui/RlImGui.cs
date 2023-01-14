@@ -15,42 +15,42 @@ public static class RlImGui
 
     public static void Setup(bool darkTheme = true)
     {
-        mouseCursorMap = new Dictionary<ImGuiMouseCursor, MouseCursor>();
+        RlImGui.mouseCursorMap = new Dictionary<ImGuiMouseCursor, MouseCursor>();
 
-        fontTexture.id = 0;
+        RlImGui.fontTexture.id = 0;
 
-        BeginInitImGui();
+        RlImGui.BeginInitImGui();
 
         if (darkTheme)
             ImGui.StyleColorsDark();
         else
             ImGui.StyleColorsLight();
 
-        EndInitImGui();
+        RlImGui.EndInitImGui();
     }
 
     public static void BeginInitImGui()
     {
-        ImGuiContext = ImGui.CreateContext();
+        RlImGui.ImGuiContext = ImGui.CreateContext();
     }
 
     private static void SetupMouseCursors()
     {
-        mouseCursorMap.Clear();
-        mouseCursorMap[ImGuiMouseCursor.Arrow] = MouseCursor.MOUSE_CURSOR_ARROW;
-        mouseCursorMap[ImGuiMouseCursor.TextInput] = MouseCursor.MOUSE_CURSOR_IBEAM;
-        mouseCursorMap[ImGuiMouseCursor.Hand] = MouseCursor.MOUSE_CURSOR_POINTING_HAND;
-        mouseCursorMap[ImGuiMouseCursor.ResizeAll] = MouseCursor.MOUSE_CURSOR_RESIZE_ALL;
-        mouseCursorMap[ImGuiMouseCursor.ResizeEW] = MouseCursor.MOUSE_CURSOR_RESIZE_EW;
-        mouseCursorMap[ImGuiMouseCursor.ResizeNESW] = MouseCursor.MOUSE_CURSOR_RESIZE_NESW;
-        mouseCursorMap[ImGuiMouseCursor.ResizeNS] = MouseCursor.MOUSE_CURSOR_RESIZE_NS;
-        mouseCursorMap[ImGuiMouseCursor.ResizeNWSE] = MouseCursor.MOUSE_CURSOR_RESIZE_NWSE;
-        mouseCursorMap[ImGuiMouseCursor.NotAllowed] = MouseCursor.MOUSE_CURSOR_NOT_ALLOWED;
+        RlImGui.mouseCursorMap.Clear();
+        RlImGui.mouseCursorMap[ImGuiMouseCursor.Arrow] = MouseCursor.MOUSE_CURSOR_ARROW;
+        RlImGui.mouseCursorMap[ImGuiMouseCursor.TextInput] = MouseCursor.MOUSE_CURSOR_IBEAM;
+        RlImGui.mouseCursorMap[ImGuiMouseCursor.Hand] = MouseCursor.MOUSE_CURSOR_POINTING_HAND;
+        RlImGui.mouseCursorMap[ImGuiMouseCursor.ResizeAll] = MouseCursor.MOUSE_CURSOR_RESIZE_ALL;
+        RlImGui.mouseCursorMap[ImGuiMouseCursor.ResizeEW] = MouseCursor.MOUSE_CURSOR_RESIZE_EW;
+        RlImGui.mouseCursorMap[ImGuiMouseCursor.ResizeNESW] = MouseCursor.MOUSE_CURSOR_RESIZE_NESW;
+        RlImGui.mouseCursorMap[ImGuiMouseCursor.ResizeNS] = MouseCursor.MOUSE_CURSOR_RESIZE_NS;
+        RlImGui.mouseCursorMap[ImGuiMouseCursor.ResizeNWSE] = MouseCursor.MOUSE_CURSOR_RESIZE_NWSE;
+        RlImGui.mouseCursorMap[ImGuiMouseCursor.NotAllowed] = MouseCursor.MOUSE_CURSOR_NOT_ALLOWED;
     }
 
     public static unsafe void ReloadFonts()
     {
-        ImGui.SetCurrentContext(ImGuiContext);
+        ImGui.SetCurrentContext(RlImGui.ImGuiContext);
         ImGuiIOPtr io = ImGui.GetIO();
 
         IntPtr pixels;
@@ -59,17 +59,17 @@ public static class RlImGui
 
         Image image = Raylib.GenImageColor(width, height, Raylib.BLANK);
 
-        fontTexture = Raylib.LoadTextureFromImage(image);
-        Raylib.UpdateTexture(fontTexture, (void*)pixels);
+        RlImGui.fontTexture = Raylib.LoadTextureFromImage(image);
+        Raylib.UpdateTexture(RlImGui.fontTexture, (void*)pixels);
 
-        io.Fonts.SetTexID(new IntPtr(fontTexture.id));
+        io.Fonts.SetTexID(new IntPtr(RlImGui.fontTexture.id));
     }
 
     public static void EndInitImGui()
     {
-        SetupMouseCursors();
+        RlImGui.SetupMouseCursors();
 
-        ImGui.SetCurrentContext(ImGuiContext);
+        ImGui.SetCurrentContext(RlImGui.ImGuiContext);
         // ImFontAtlasPtr fonts = ImGui.GetIO().Fonts;
         ImGui.GetIO().Fonts.AddFontDefault();
 
@@ -95,7 +95,7 @@ public static class RlImGui
         io.KeyMap[(int)ImGuiKey.Y] = (int)KeyboardKey.KEY_Y;
         io.KeyMap[(int)ImGuiKey.Z] = (int)KeyboardKey.KEY_Z;
 
-        ReloadFonts();
+        RlImGui.ReloadFonts();
     }
 
     private static void NewFrame()
@@ -132,8 +132,8 @@ public static class RlImGui
 
         if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) != 0) return;
         ImGuiMouseCursor imguiCursor = ImGui.GetMouseCursor();
-        if (imguiCursor == currentMouseCursor && !io.MouseDrawCursor) return;
-        currentMouseCursor = imguiCursor;
+        if (imguiCursor == RlImGui.currentMouseCursor && !io.MouseDrawCursor) return;
+        RlImGui.currentMouseCursor = imguiCursor;
         if (io.MouseDrawCursor || imguiCursor == ImGuiMouseCursor.None)
         {
             Raylib.HideCursor();
@@ -143,9 +143,9 @@ public static class RlImGui
             Raylib.ShowCursor();
 
             if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) != 0) return;
-            Raylib.SetMouseCursor(!mouseCursorMap.ContainsKey(imguiCursor)
+            Raylib.SetMouseCursor(!RlImGui.mouseCursorMap.ContainsKey(imguiCursor)
                 ? MouseCursor.MOUSE_CURSOR_DEFAULT
-                : mouseCursorMap[imguiCursor]);
+                : RlImGui.mouseCursorMap[imguiCursor]);
         }
     }
 
@@ -169,10 +169,10 @@ public static class RlImGui
 
     public static void Begin()
     {
-        ImGui.SetCurrentContext(ImGuiContext);
+        ImGui.SetCurrentContext(RlImGui.ImGuiContext);
 
-        NewFrame();
-        FrameEvents();
+        RlImGui.NewFrame();
+        RlImGui.FrameEvents();
         ImGui.NewFrame();
     }
 
@@ -218,9 +218,9 @@ public static class RlImGui
             ImDrawVertPtr vertexB = vertBuffer[indexB];
             ImDrawVertPtr vertexC = vertBuffer[indexC];
 
-            TriangleVert(vertexA);
-            TriangleVert(vertexB);
-            TriangleVert(vertexC);
+            RlImGui.TriangleVert(vertexA);
+            RlImGui.TriangleVert(vertexB);
+            RlImGui.TriangleVert(vertexC);
         }
         RlGl.rlEnd();
     }
@@ -242,7 +242,7 @@ public static class RlImGui
             {
                 var cmd = commandList.CmdBuffer[cmdIndex];
 
-                EnableScissor(cmd.ClipRect.X - data.DisplayPos.X, cmd.ClipRect.Y - data.DisplayPos.Y, cmd.ClipRect.Z - (cmd.ClipRect.X - data.DisplayPos.X), cmd.ClipRect.W - (cmd.ClipRect.Y - data.DisplayPos.Y));
+                RlImGui.EnableScissor(cmd.ClipRect.X - data.DisplayPos.X, cmd.ClipRect.Y - data.DisplayPos.Y, cmd.ClipRect.Z - (cmd.ClipRect.X - data.DisplayPos.X), cmd.ClipRect.W - (cmd.ClipRect.Y - data.DisplayPos.Y));
                 if (cmd.UserCallback != IntPtr.Zero)
                 {
                     //  cmd.UserCallback(commandList, &cmd);
@@ -250,7 +250,7 @@ public static class RlImGui
                     continue;
                 }
 
-                RenderTriangles(cmd.ElemCount, idxOffset, commandList.IdxBuffer, commandList.VtxBuffer, cmd.TextureId);
+                RlImGui.RenderTriangles(cmd.ElemCount, idxOffset, commandList.IdxBuffer, commandList.VtxBuffer, cmd.TextureId);
                 idxOffset += cmd.ElemCount;
 
                 RlGl.rlDrawRenderBatchActive();
@@ -263,14 +263,14 @@ public static class RlImGui
 
     public static void End()
     {
-        ImGui.SetCurrentContext(ImGuiContext);
+        ImGui.SetCurrentContext(RlImGui.ImGuiContext);
         ImGui.Render();
-        RenderData();
+        RlImGui.RenderData();
     }
 
     public static void Shutdown()
     {
-        Raylib.UnloadTexture(fontTexture);
+        Raylib.UnloadTexture(RlImGui.fontTexture);
     }
 
     public static void Image(Texture image)
